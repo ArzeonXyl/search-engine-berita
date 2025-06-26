@@ -3,3 +3,4 @@ Sastrawi
 scikit-learn
 numpy
 gunicorn
+Flask-Cors
