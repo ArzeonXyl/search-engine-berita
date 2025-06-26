@@ -1,13 +1,16 @@
-from flask import Flask, request, jsonify, render_template
-import subprocess
-import sys
-import os
+# app.py
 
-# Kasih tahu Flask template folder-nya "views"
+from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS # Menambahkan CORS untuk pengembangan lokal
+# Impor fungsi perform_search. Ini akan otomatis memuat index saat pertama kali dijalankan.
+from search_logic import perform_search 
+
 app = Flask(__name__, template_folder='views')
+CORS(app) # Memungkinkan request dari halaman HTML lokal
 
 @app.route('/')
 def index():
+    # Menampilkan halaman utama
     return render_template('index.html')
 
 @app.route("/run-python", methods=["POST"])
@@ -15,28 +18,20 @@ def run_python():
     data = request.get_json()
     query = data.get("query", "")
 
-    script_path = os.path.join(os.getcwd(), "query.py")
-    if not os.path.exists(script_path):
-        return jsonify({"error": f"Script query.py tidak ditemukan di {script_path}"}), 404
+    if not query:
+        return jsonify({"error": "Query tidak boleh kosong!"}), 400
 
     try:
-        result = subprocess.run(
-            [sys.executable, script_path, query],
-            capture_output=True,
-            text=True,
-            encoding='utf-8'
-        )
-
-        if result.returncode == 0:
-            return jsonify({"output": result.stdout.strip()})
-        else:
-            return jsonify({
-                "error": "Gagal menjalankan query.py",
-                "details": result.stderr.strip()
-            }), 500
-
+        # Panggil fungsi perform_search secara langsung
+        result_json_string = perform_search(query)
+        # Respon sudah dalam bentuk JSON string, jadi kita kirim sebagai dictionary
+        return jsonify({"output": result_json_string})
     except Exception as e:
-        return jsonify({"error": "Internal error", "details": str(e)}), 500
+        # Catat error di server untuk debugging
+        print(f"Error saat search: {e}")
+        return jsonify({"error": "Terjadi kesalahan internal pada server", "details": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Jalankan server Flask.
+    # use_reloader=False penting agar file index tidak di-load ulang setiap kali ada perubahan kode.
+    app.run(debug=True, use_reloader=False, port=8000)

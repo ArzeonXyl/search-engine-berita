@@ -3,55 +3,48 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pencarian Pahlawan Indonesia</title>
+  <title>Pencarian Berita Olahraga</title>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <style>
-    /* gaya css lo tetap */
-    * { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; margin: 0; background-color: #fff; color: #202124; min-height: 100vh; display: flex; flex-direction: column; }
-    header { padding: 40px 20px 20px; text-align: center; }
-    header h1 { font-size: 32px; font-weight: 500; margin-bottom: 20px; }
-    .search-box { width: 100%; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
-    input[type="text"] { padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 24px; padding-left: 20px; }
-    button { padding: 10px; font-size: 16px; border: none; border-radius: 24px; background-color: #1a73e8; color: white; font-weight: 500; }
-    button:hover { background-color: #1558c4; }
-    .results-container { max-width: 800px; margin: 30px auto; padding: 0 20px; }
-    .result-item { padding: 20px 0; border-bottom: 1px solid #dadce0; }
-    .result-item h3 a { color: #1a0dab; text-decoration: none; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f8f9fa; }
+    header { background-color: #ffffff; padding: 40px 20px 20px; border-bottom: 1px solid #dee2e6; }
+    header h1 { font-weight: 300; }
+    .search-box { max-width: 600px; margin: 0 auto; }
+    .results-container { max-width: 800px; margin: 30px auto; }
+    .result-item { background-color: #fff; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-bottom: 15px; }
+    .result-item h3 a { color: #0d6efd; text-decoration: none; font-size: 1.2rem; }
     .result-item h3 a:hover { text-decoration: underline; }
-    .result-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; }
-    .result-item p { margin-top: 5px; font-size: 15px; color: #4d5156; }
-    .result-item .score { font-size: 13px; color: #70757a; }
-    .result-item img, .default-img { max-width: 120px; height: auto; border-radius: 8px; background-color: #f1f3f4; }
-    .default-img { width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 60px; color: #ccc; }
-    .no-results { text-align: center; font-size: 18px; color: #666; margin-top: 40px; }
-    .error { color: red; text-align: center; margin-top: 10px; }
-    #loading-spinner { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; text-align: center; }
+    .result-item p { margin-top: 8px; color: #495057; font-size: 0.95rem; }
+    .result-item .score { font-size: 0.85rem; color: #6c757d; margin-top: 10px; }
+    #loading-spinner { display: none; text-align: center; padding: 40px; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Pencarian Pahlawan Indonesia</h1>
+  <header class="text-center">
+    <h1>Pencarian Berita Olahraga</h1>
     <div class="search-box">
-      <input id="query" type="text" placeholder="Masukkan nama pahlawan..." />
-      <button onclick="fetchResults()">Cari</button>
-      <div id="error" class="error"></div>
+      <input id="query" type="text" class="form-control form-control-lg" placeholder="Cari berita tentang MotoGP, Tenis, Bulutangkis..." onkeydown="if(event.key==='Enter') fetchResults();"/>
+      <div class="d-grid gap-2">
+        <button class="btn btn-primary btn-lg mt-2" onclick="fetchResults()">Cari Berita</button>
+      </div>
+      <div id="error" class="text-danger mt-2 text-center"></div>
     </div>
   </header>
 
   <div id="loading-spinner">
-    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+    <div class="spinner-border text-primary" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
-    <p>Loading hasil pencarian...</p>
   </div>
 
   <div id="results" class="results-container"></div>
 
   <script>
+    // Pastikan URL endpoint sesuai dengan port yang Anda jalankan di app.py
+    const API_ENDPOINT = 'http://127.0.0.1:8000/run-python';
+
     async function fetchResults() {
       const query = document.getElementById('query').value.trim();
       const errorEl = document.getElementById('error');
@@ -59,7 +52,7 @@
       const spinnerEl = document.getElementById('loading-spinner');
 
       if (!query) {
-        errorEl.innerText = 'Query tidak boleh kosong!';
+        errorEl.innerText = 'Kolom pencarian tidak boleh kosong!';
         return;
       }
 
@@ -68,12 +61,11 @@
       spinnerEl.style.display = 'block';
 
       try {
-        const response = await axios.post('/run-python', { query });  // relatif ke base url app
+        const response = await axios.post(API_ENDPOINT, { query });
 
         spinnerEl.style.display = 'none';
 
         if (response.data.output) {
-          // output dari backend kemungkinan string JSON, parse dulu
           let results;
           try {
             results = JSON.parse(response.data.output);
@@ -84,36 +76,30 @@
           if (results.length > 0) {
             let resultsHTML = '';
             results.forEach(result => {
-              const imageContent = result.image_url
-                ? `<img src="${result.image_url}" alt="${result.name}">`
-                : `<div class="default-img"><i class="fas fa-user"></i></div>`;
-
+              const descriptionSnippet = result.isi_berita ? result.isi_berita.substring(0, 250) + '...' : 'Deskripsi tidak tersedia.';
               resultsHTML += `
                 <div class="result-item">
-                  <div class="result-row">
-                    <div class="result-info">
-                      <h3><a href="${result.url || '#'}" target="_blank">${result.name}</a></h3>
-                      <p>${result.description || ''}</p>
-                      <p class="score">Score: ${result.score ? result.score.toFixed(2) : 'N/A'}</p>
-                    </div>
-                    ${imageContent}
-                  </div>
+                  <h3><a href="${result.url || '#'}" target="_blank" rel="noopener noreferrer">${result.judul || 'Judul Tidak Tersedia'}</a></h3>
+                  <p>${descriptionSnippet}</p>
+                  <p class="score">Skor Relevansi: ${result.score ? result.score.toFixed(4) : 'N/A'}</p>
                 </div>`;
             });
             resultsEl.innerHTML = resultsHTML;
           } else {
-            resultsEl.innerHTML = `<div class="no-results">Tidak ada hasil ditemukan.</div>`;
+            resultsEl.innerHTML = `<div class="alert alert-warning text-center">Tidak ada hasil yang relevan ditemukan untuk query '${query}'.</div>`;
           }
         } else if (response.data.error) {
           errorEl.innerText = response.data.error;
-        } else {
-          resultsEl.innerHTML = `<div class="no-results">Tidak ada hasil ditemukan.</div>`;
         }
 
       } catch (error) {
         spinnerEl.style.display = 'none';
-        errorEl.innerText = 'Terjadi kesalahan saat mengambil hasil pencarian!';
-        resultsEl.innerHTML = '';
+        let errorMessage = 'Terjadi kesalahan saat menghubungi server. Pastikan server Python (app.py) sudah berjalan.';
+        if (error.response) {
+            errorMessage += ` (Status: ${error.response.status})`;
+        }
+        errorEl.innerText = errorMessage;
+        console.error("Error details:", error);
       }
     }
   </script>

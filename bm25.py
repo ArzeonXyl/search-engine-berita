@@ -1,64 +1,52 @@
-import json
-import string
+# bm25.py
+
 import math
-import sys
+import string
+# Library Sastrawi akan diinisialisasi di search_logic.py
 
-sys.path.append('stemming/')
-from stemming.porter3 import stem
+def preprocess_query(text, stemmer, stop_words):
+    """
+    Fungsi untuk membersihkan, tokenize, menghapus stopwords,
+    dan stemming query teks dari pengguna.
+    """
+    text = text.translate(str.maketrans('', '', string.punctuation + string.digits))
+    tokens = text.lower().split()
+    
+    processed_tokens = {}
+    for token in tokens:
+        stemmed_token = stemmer.stem(token)
+        if len(stemmed_token) > 2 and stemmed_token not in stop_words:
+            processed_tokens[stemmed_token] = processed_tokens.get(stemmed_token, 0) + 1
+            
+    return processed_tokens
 
-class BowColl:
-    BowCollList = []
-
-class BowDoc:
-    def __init__(self, docID, term, docLen):
-        self.docID = docID
-        self.term = term
-        self.docLen = docLen
-
-def preprocess_text(text, stop_words):
-    text = text.translate(str.maketrans('', '', string.punctuation))
-    text = text.translate(str.maketrans('', '', string.digits))
-    text = text.lower().split()
-    processed_text = {}
-    for term in text:
-        term = stem(term)
-        if len(term) > 2 and term not in stop_words:
-            processed_text[term] = processed_text.get(term, 0) + 1
-    return processed_text
-
-def parse_json_coll(json_file, stop_words):
-    original_docs = []
-    BowColl.BowCollList = []  # reset biar gak dobel kalau dipanggil ulang
-    with open(json_file, 'r', encoding='utf-8') as file:
-        data = json.load(file)
-    for index, item in enumerate(data):
-        docID = index
-        term = preprocess_text(item["description"], stop_words)
-        docLen = sum(term.values())
-        BowColl.BowCollList.append([docID, term, docLen])
-        original_docs.append(item)
-    return BowColl.BowCollList, original_docs
-
-def compute_K(dl, avdl):
-    return 1.2 * ((1 - 0.75) + 0.75 * (float(dl) / float(avdl)))
-
-def score_BM25(coll, query, df, stop_words):
-    query_terms = preprocess_text(query, stop_words)
-    avdl = sum(doc[2] for doc in coll) / len(coll)
+def score_BM25(N, avdl, doc_lengths, bow_collection, query_terms, df):
+    """
+    Menghitung skor BM25 untuk semua dokumen berdasarkan query.
+    Semua data (N, avdl, dll) didapatkan dari file index yang sudah dimuat.
+    """
+    k1 = 1.2
+    b = 0.75
     query_result = {}
-    k1, k2, b, R, N, r = 1.2, 100, 0.75, 0.0, len(coll), 0.0
 
-    for doc in coll:
-        score = 0
-        for term in query_terms:
-            n = df.get(term, 0)
-            f = doc[1].get(term, 0)
-            K = compute_K(doc[2], avdl)
-            if n == 0:
-                continue
-            first = math.log10(((r + 0.5) / (R - r + 0.5)) / ((n - r + 0.5) / (N - n - R + r + 0.5)))
-            second = ((k1 + 1) * f) / (K + f)
-            third = ((k2 + 1) * query_terms[term]) / (k2 + query_terms[term])
-            score += first * second * third
-        query_result[doc[0]] = score
+    for doc_id, doc_bow in enumerate(bow_collection):
+        score = 0.0
+        doc_len = doc_lengths[doc_id]
+        
+        for term, qtf in query_terms.items():
+            if term in df:
+                n = df[term]  # Document frequency of the term
+                f = doc_bow.get(term, 0) # Term frequency in the current document
+                
+                # Formula IDF (Inverse Document Frequency)
+                idf = math.log10(1 + (N - n + 0.5) / (n + 0.5))
+                
+                # Formula utama BM25
+                numerator = f * (k1 + 1)
+                denominator = f + k1 * (1 - b + b * (doc_len / avdl))
+                
+                score += idf * (numerator / denominator)
+        
+        query_result[doc_id] = score
+        
     return query_result
