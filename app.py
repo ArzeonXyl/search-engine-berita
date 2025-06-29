@@ -34,4 +34,4 @@ def run_python():
 if __name__ == "__main__":
     # Jalankan server Flask.
     # use_reloader=False penting agar file index tidak di-load ulang setiap kali ada perubahan kode.
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(debug=False, use_reloader=False)
