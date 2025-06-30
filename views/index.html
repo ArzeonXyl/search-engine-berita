@@ -1,221 +1,77 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pencarian Berita Olahraga</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Temu Kembali Informasi — M. Aldi Rahmandika</title>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-  <style>
-    /* * ===============================================
-     * MODERN & ELEGANT SEARCH ENGINE STYLE
-     * ===============================================
-    */
-
-    /* 1. Variabel Global untuk Tema yang Mudah Disesuaikan */
-    :root {
-      --primary-color: #4285F4; /* Biru ala Google */
-      --bg-color: #f8f9fa; /* Latar belakang abu-abu sangat muda */
-      --card-bg-color: #ffffff;
-      --text-color: #202124; /* Abu-abu tua untuk teks utama */
-      --subtle-text-color: #5f6368; /* Abu-abu untuk teks sekunder/deskripsi */
-      --link-color: #1a0dab; /* Warna link standar pencarian */
-      --url-color: #006621; /* Warna hijau untuk URL */
-      --border-color: #dfe1e5;
-      --shadow-color: rgba(0, 0, 0, 0.08);
-      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
     }
-
-    /* 2. Style Dasar & Body */
-    body {
-      font-family: var(--font-family);
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      transition: background-color 0.3s;
-    }
-
-    /* 3. Header & Judul */
-    header {
-      background-color: transparent; /* Hapus latar belakang header */
-      padding: 60px 20px 30px; /* Beri lebih banyak ruang di atas */
-      border-bottom: none; /* Hapus garis bawah */
-      text-align: center;
-    }
-
-    header h1 {
-      font-weight: 700;
-      font-size: 2.5rem;
-      margin-bottom: 30px;
-      color: var(--text-color);
-    }
-
-    /* 4. Kotak Pencarian yang Menjadi Pusat Perhatian */
-    .search-container {
-      max-width: 680px;
-      margin: 0 auto;
-    }
-    
-    .search-input-wrapper {
-        position: relative;
-        margin-bottom: 1rem;
-    }
-
-    #query {
-      width: 100%;
-      padding: 14px 20px 14px 50px; /* Ruang untuk ikon */
-      font-size: 1.1rem;
-      border-radius: 50px; /* Bentuk pil yang modern */
-      border: 1px solid var(--border-color);
-      box-shadow: 0 1px 6px var(--shadow-color);
-      transition: all 0.2s ease-in-out;
-    }
-
-    #query:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 2px 8px rgba(66, 133, 244, 0.25);
-    }
-    
-    .search-input-wrapper svg {
-        position: absolute;
-        left: 18px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 20px;
-        height: 20px;
-        fill: var(--subtle-text-color);
-    }
-
-    .search-button {
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      padding: 12px 30px;
-      font-size: 1rem;
-      font-weight: 500;
-      border-radius: 25px;
-      cursor: pointer;
-      transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
-    }
-
-    .search-button:hover {
-      background-color: #3367D6;
-      box-shadow: 0 4px 12px rgba(66, 133, 244, 0.2);
-      transform: translateY(-2px);
-    }
-    
-    .search-button:active {
-        transform: translateY(0);
-    }
-
-    /* 5. Kontainer & Kartu Hasil Pencarian */
-    .results-container {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 0 15px;
-    }
-
-    .result-item {
-      background-color: var(--card-bg-color);
-      border: none; /* Hapus border */
-      border-radius: 12px;
-      padding: 25px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 15px var(--shadow-color);
-      transition: all 0.2s ease-in-out;
-    }
-
-    .result-item:hover {
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-      transform: translateY(-3px);
-    }
-
-    .result-item .result-url {
-        font-size: 0.9rem;
-        color: var(--url-color);
-        margin-bottom: 4px;
-        word-break: break-all;
-    }
-
-    .result-item h3 {
-        margin-bottom: 8px;
-    }
-
-    .result-item h3 a {
-      color: var(--link-color);
-      text-decoration: none;
-      font-size: 1.25rem;
-      font-weight: 500;
-    }
-
-    .result-item h3 a:hover {
-      text-decoration: underline;
-    }
-
-    .result-item p.description {
-      color: var(--subtle-text-color);
-      font-size: 0.95rem;
-      line-height: 1.6;
-      margin-top: 0;
-      margin-bottom: 12px;
-    }
-
-    .result-item .score {
-      font-size: 0.8rem;
-      color: #9aa0a6; /* Abu-abu lebih muda lagi */
-      text-align: right;
-    }
-
-    /* 6. Loading Spinner & Pesan Error */
-    #loading-spinner {
-      display: none;
-      text-align: center;
-      padding: 50px;
-    }
-
-    #error {
-      min-height: 24px; /* Agar layout tidak "lompat" saat error muncul */
-    }
-
-  </style>
+  </script>
 </head>
-<body>
-  <header>
-    <h1>Pencarian Berita Olahraga</h1>
-    <div class="search-container">
-      <div class="search-input-wrapper">
-        <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
-        </svg>
-        <input id="query" type="text" class="form-control-lg" placeholder="Cari berita tentang MotoGP, Tenis, Bulutangkis..." onkeydown="if(event.key==='Enter') fetchResults();"/>
-      </div>
-      <button class="search-button" onclick="fetchResults()">Cari Berita</button>
-      <div id="error" class="text-danger mt-3 text-center"></div>
-    </div>
-  </header>
+<body class="bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 min-h-screen flex flex-col text-gray-800 dark:text-gray-100 font-sans transition-colors duration-300">
 
-  <div id="loading-spinner">
-    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-      <span class="visually-hidden">Loading...</span>
+  <!-- TOP BAR -->
+  <div class="w-full flex justify-between items-center px-6 py-4 bg-white/50 dark:bg-gray-900/70 backdrop-blur sticky top-0 z-50">
+    <div class="flex items-center space-x-3">
+
+      <span class="text-lg font-semibold">M. Aldi Rahmandika</span>
     </div>
+    <!-- DARK MODE TOGGLE -->
+    <button id="toggleDark" class="text-sm px-3 py-1 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 transition">
+      🌙 Dark
+    </button>
   </div>
 
-  <div id="results" class="results-container"></div>
+  <!-- HEADER -->
+  <header class="text-center py-12">
+    <h1 class="text-4xl sm:text-5xl font-extrabold text-blue-700 dark:text-blue-400 mb-3">Temu Kembali Informasi</h1>
+    <p class="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-8">Project Pencarian Berita Olahraga</p>
+    <div class="max-w-xl mx-auto flex flex-col sm:flex-row items-center gap-3">
+      <input id="query" type="text" placeholder="Contoh: MotoGP, Bulutangkis, Tenis..." class="flex-1 px-5 py-3 rounded-full border border-gray-300 dark:border-gray-600 shadow focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:text-white" onkeydown="if(event.key==='Enter') fetchResults()">
+      <button onclick="fetchResults()" class="bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transition">Cari</button>
+    </div>
+    <div id="error" class="text-red-500 mt-4"></div>
+  </header>
+
+  <!-- LOADING -->
+  <div id="loading-spinner" class="flex justify-center py-10 hidden">
+    <svg class="animate-spin h-10 w-10 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+    </svg>
+  </div>
+
+  <!-- SUMMARY -->
+  <div id="summary" class="text-center text-gray-500 dark:text-gray-300 mb-4"></div>
+
+  <!-- RESULTS -->
+  <main id="results" class="max-w-3xl mx-auto px-4 flex-1"></main>
+
+  <!-- PAGINATION -->
+  <div id="pagination" class="flex justify-center items-center space-x-2 mt-8 mb-12"></div>
+
+  <!-- FOOTER -->
+  <footer class="text-center text-gray-400 dark:text-gray-500 text-sm pb-6">
+    Dibuat dengan ❤️ oleh <span class="font-semibold text-gray-600 dark:text-gray-300">M. Aldi Rahmandika</span>
+  </footer>
 
   <script>
     const API_ENDPOINT = '/run-python';
+    const PER_PAGE = 5;
+    let allResults = [];
+    let currentPage = 1;
 
     async function fetchResults() {
       const query = document.getElementById('query').value.trim();
       const errorEl = document.getElementById('error');
       const resultsEl = document.getElementById('results');
       const spinnerEl = document.getElementById('loading-spinner');
+      const paginationEl = document.getElementById('pagination');
+      const summaryEl = document.getElementById('summary');
 
       if (!query) {
         errorEl.innerText = 'Kolom pencarian tidak boleh kosong!';
@@ -224,51 +80,92 @@
 
       errorEl.innerText = '';
       resultsEl.innerHTML = '';
-      spinnerEl.style.display = 'block';
+      paginationEl.innerHTML = '';
+      summaryEl.innerHTML = '';
+      spinnerEl.classList.remove('hidden');
 
       try {
         const response = await axios.post(API_ENDPOINT, { query });
-        spinnerEl.style.display = 'none';
+        spinnerEl.classList.add('hidden');
 
         if (response.data.output) {
-          let results;
-          try {
-            results = JSON.parse(response.data.output);
-          } catch {
-            results = [];
-          }
+          const data = JSON.parse(response.data.output);
+          allResults = data.results;
+          const totalFound = data.total_found;
+          const timeTaken = data.time_taken;
 
-          if (results.length > 0) {
-            let resultsHTML = '';
-            results.forEach(result => {
-              const descriptionSnippet = result.isi_berita ? result.isi_berita.substring(0, 250) + '...' : 'Deskripsi tidak tersedia.';
-              // **PENYESUAIAN PADA TEMPLATE HASIL**
-              resultsHTML += `
-                <div class="result-item">
-                  <div class="result-url">${result.url || 'URL tidak tersedia'}</div>
-                  <h3><a href="${result.url || '#'}" target="_blank" rel="noopener noreferrer">${result.judul || 'Judul Tidak Tersedia'}</a></h3>
-                  <p class="description">${descriptionSnippet}</p>
-                  <p class="score">Skor Relevansi: ${result.score ? result.score.toFixed(4) : 'N/A'}</p>
-                </div>`;
-            });
-            resultsEl.innerHTML = resultsHTML;
+          summaryEl.innerHTML = `Menemukan <strong>${totalFound}</strong> hasil dalam <strong>${timeTaken} detik</strong>.`;
+
+          if (allResults.length > 0) {
+            renderPage(1);
           } else {
-            resultsEl.innerHTML = `<div class="alert alert-warning text-center">Tidak ada hasil yang relevan ditemukan untuk query '${query}'.</div>`;
+            resultsEl.innerHTML = `<div class="text-center text-gray-500">Tidak ada hasil ditemukan.</div>`;
           }
-        } else if (response.data.error) {
-          errorEl.innerText = response.data.error;
+        } else {
+          errorEl.innerText = 'Respons kosong.';
         }
-
       } catch (error) {
-        spinnerEl.style.display = 'none';
-        let errorMessage = 'Terjadi kesalahan saat menghubungi server. Pastikan server Python (app.py) sudah berjalan.';
-        if (error.response) {
-          errorMessage += ` (Status: ${error.response.status})`;
-        }
-        errorEl.innerText = errorMessage;
-        console.error("Error details:", error);
+        spinnerEl.classList.add('hidden');
+        errorEl.innerText = 'Gagal memuat data.';
+        console.error(error);
       }
     }
+
+    function renderPage(page) {
+      const resultsEl = document.getElementById('results');
+      const paginationEl = document.getElementById('pagination');
+      const totalPages = Math.ceil(allResults.length / PER_PAGE);
+      currentPage = page;
+
+      const start = (page - 1) * PER_PAGE;
+      const end = start + PER_PAGE;
+      const pageResults = allResults.slice(start, end);
+
+      resultsEl.innerHTML = '';
+      pageResults.forEach(result => {
+        const snippet = result.isi_berita ? result.isi_berita.substring(0, 200) + '...' : 'Deskripsi tidak tersedia.';
+        resultsEl.innerHTML += `
+          <div class="bg-white dark:bg-gray-700 shadow p-6 rounded-lg mb-4">
+            <div class="text-green-700 dark:text-green-400 text-sm break-words mb-1">${result.url || ''}</div>
+            <h2 class="text-xl font-semibold mb-2">
+              <a href="${result.url || '#'}" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline">${result.judul || 'Tanpa Judul'}</a>
+            </h2>
+            <p class="text-gray-600 dark:text-gray-300 mb-2">${snippet}</p>
+            <div class="text-right text-xs text-gray-400 dark:text-gray-300">Skor: ${result.score ? result.score.toFixed(4) : 'N/A'}</div>
+          </div>
+        `;
+      });
+
+      let pagHTML = '';
+
+      if (currentPage > 1) {
+        pagHTML += `<button onclick="renderPage(${currentPage - 1})" class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">Prev</button>`;
+      }
+
+      let maxPagesToShow = 5;
+      let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+      let endPage = startPage + maxPagesToShow - 1;
+
+      if (endPage > totalPages) {
+        endPage = totalPages;
+        startPage = Math.max(1, endPage - maxPagesToShow + 1);
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        pagHTML += `<button onclick="renderPage(${i})" class="px-3 py-1 rounded ${i === currentPage ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500'}">${i}</button>`;
+      }
+
+      if (currentPage < totalPages) {
+        pagHTML += `<button onclick="renderPage(${currentPage + 1})" class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">Next</button>`;
+      }
+
+      paginationEl.innerHTML = pagHTML;
+    }
+
+    const toggleBtn = document.getElementById('toggleDark');
+    toggleBtn.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+    });
   </script>
 </body>
 </html>
