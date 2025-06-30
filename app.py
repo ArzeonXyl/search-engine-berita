@@ -2,11 +2,11 @@
 
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS # Menambahkan CORS untuk pengembangan lokal
-# Impor fungsi perform_search. Ini akan otomatis memuat index saat pertama kali dijalankan.
+
 from search_logic import perform_search 
 
 app = Flask(__name__, template_folder='views')
-CORS(app) # Memungkinkan request dari halaman HTML lokal
+CORS(app) 
 
 @app.route('/')
 def index():
@@ -27,11 +27,8 @@ def run_python():
         # Respon sudah dalam bentuk JSON string, jadi kita kirim sebagai dictionary
         return jsonify({"output": result_json_string})
     except Exception as e:
-        # Catat error di server untuk debugging
         print(f"Error saat search: {e}")
         return jsonify({"error": "Terjadi kesalahan internal pada server", "details": str(e)}), 500
 
 if __name__ == "__main__":
-    # Jalankan server Flask.
-    # use_reloader=False penting agar file index tidak di-load ulang setiap kali ada perubahan kode.
     app.run(debug=False, use_reloader=False)
