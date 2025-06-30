@@ -17,10 +17,8 @@
   <!-- TOP BAR -->
   <div class="w-full flex justify-between items-center px-6 py-4 bg-white/50 dark:bg-gray-900/70 backdrop-blur sticky top-0 z-50">
     <div class="flex items-center space-x-3">
-
       <span class="text-lg font-semibold">M. Aldi Rahmandika</span>
     </div>
-    <!-- DARK MODE TOGGLE -->
     <button id="toggleDark" class="text-sm px-3 py-1 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 transition">
       🌙 Dark
     </button>
@@ -113,7 +111,6 @@
 
     function renderPage(page) {
       const resultsEl = document.getElementById('results');
-      const paginationEl = document.getElementById('pagination');
       const totalPages = Math.ceil(allResults.length / PER_PAGE);
       currentPage = page;
 
@@ -121,21 +118,31 @@
       const end = start + PER_PAGE;
       const pageResults = allResults.slice(start, end);
 
-      resultsEl.innerHTML = '';
+      const frag = document.createDocumentFragment();
+
       pageResults.forEach(result => {
+        const wrapper = document.createElement('div');
+        wrapper.className = "bg-white dark:bg-gray-700 shadow p-6 rounded-lg mb-4";
         const snippet = result.isi_berita ? result.isi_berita.substring(0, 200) + '...' : 'Deskripsi tidak tersedia.';
-        resultsEl.innerHTML += `
-          <div class="bg-white dark:bg-gray-700 shadow p-6 rounded-lg mb-4">
-            <div class="text-green-700 dark:text-green-400 text-sm break-words mb-1">${result.url || ''}</div>
-            <h2 class="text-xl font-semibold mb-2">
-              <a href="${result.url || '#'}" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline">${result.judul || 'Tanpa Judul'}</a>
-            </h2>
-            <p class="text-gray-600 dark:text-gray-300 mb-2">${snippet}</p>
-            <div class="text-right text-xs text-gray-400 dark:text-gray-300">Skor: ${result.score ? result.score.toFixed(4) : 'N/A'}</div>
-          </div>
+        wrapper.innerHTML = `
+          <div class="text-green-700 dark:text-green-400 text-sm break-words mb-1">${result.url || ''}</div>
+          <h2 class="text-xl font-semibold mb-2">
+            <a href="${result.url || '#'}" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline">${result.judul || 'Tanpa Judul'}</a>
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-2">${snippet}</p>
+          <div class="text-right text-xs text-gray-400 dark:text-gray-300">Skor: ${result.score ? result.score.toFixed(4) : 'N/A'}</div>
         `;
+        frag.appendChild(wrapper);
       });
 
+      resultsEl.innerHTML = '';
+      resultsEl.appendChild(frag);
+
+      renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+      const paginationEl = document.getElementById('pagination');
       let pagHTML = '';
 
       if (currentPage > 1) {
